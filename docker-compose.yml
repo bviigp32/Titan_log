@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # 1. Spark Master (Apache 공식)
+  spark-master:
+    image: apache/spark:3.5.0
+    container_name: titan-spark-master
+    user: root
+    environment:
+      - SPARK_MODE=master
+    # 공식 이미지는 실행 명령을 직접 지정해야 함
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    networks:
+      - titan-net
+
+  # 2. Spark Worker (Apache 공식)
+  spark-worker:
+    image: apache/spark:3.5.0
+    container_name: titan-spark-worker
+    user: root
+    environment:
+      - SPARK_MODE=worker
+    # 마스터 주소를 바라보게 실행
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    networks:
+      - titan-net
+
+  # 3. MinIO (이미 성공함)
+  minio:
+    image: minio/minio:latest
+    container_name: titan-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    networks:
+      - titan-net
+    volumes:
+      - minio_data:/data
+
+  # 4. Jupyter Lab (이미 성공함)
+  jupyter:
+    image: jupyter/pyspark-notebook:latest
+    container_name: titan-jupyter
+    user: root
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - SPARK_MASTER=spark://spark-master:7077
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/data
+    networks:
+      - titan-net
+
+networks:
+  titan-net:
+    driver: bridge
+
+volumes:
+  minio_data:

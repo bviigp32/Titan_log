@@ -12,40 +12,44 @@ Raw Data(Bronze)를 정제(Silver)하고, 비즈니스 지표로 가공(Gold)하
 ## 개발 로그 (2-Week Challenge)
 * **Day 1: 데이터 센터 구축 (Infra Setup)**
   * Docker Compose를 활용한 Spark Cluster & MinIO & Jupyter 환경 구축
-  * MinIO 버킷 생성 (`bronze`, `silver`, `gold`)
-* **Day 2: 데이터 수집기 구현 (Data Ingestion)**
-  * `Faker` 라이브러리를 활용한 가상 이커머스 로그 생성기(Generator) 개발
-  * MinIO `bronze` 버킷에 JSON 포맷으로 파티셔닝(`log_date=YYYY-MM-DD`) 적재 구현
+* **Day 2: 데이터 수집 (Ingestion - Bronze)**
+  * `Faker`를 활용한 가상 로그 생성기 구현 및 MinIO 적재 (JSON)
+  * 파티셔닝 전략 적용 (`log_date=YYYY-MM-DD`)
+* **Day 3: 데이터 정제 (Transform - Silver)**
+  * **PySpark**와 **MinIO(S3)** 연동 환경 구성 (Hadoop AWS Jars)
+  * **ETL 파이프라인 1단계:** Bronze(JSON) → Silver(Parquet) 변환
+  * 스키마(Schema) 정의 및 결측치 제거, 컬럼 최적화 수행
 
 ## 아키텍처 (Architecture)
-* **Ingestion:** Python Faker (Log Generator) -> MinIO (Bronze)
-* **Processing:** Apache Spark (PySpark)
-  * **Bronze:** Raw JSON 데이터 적재
-  * **Silver:** Parquet 변환, 결측치 처리, 스키마 적용
-  * **Gold:** 일별 집계, Funnel 분석, User Session 분석
-* **Storage:** MinIO (Data Lake)
-* **Environment:** Docker Container
+1.  **Ingestion (Bronze):** Python Generator가 생성한 Raw JSON 로그 적재
+2.  **Processing (Silver):** PySpark를 통해 데이터 타입 변환 및 Parquet 포맷으로 압축 저장
+3.  **Analytics (Gold):** *(Coming Soon)* 비즈니스 지표 집계 및 분석
+4.  **Storage:** MinIO (Data Lake)
 
 ## 기술 스택 (Tech Stack)
-| Category | Technology |
-| :--- | :--- |
-| **Language** | Python 3.9+ |
-| **Processing** | **Apache Spark (PySpark)** |
-| **Storage** | **MinIO (S3 Compatible)** |
-| **Library** | Faker, MinIO Client |
-| **DevOps** | Docker, Docker Compose |
+| Category | Technology | Usage |
+| :--- | :--- | :--- |
+| **Language** | Python 3.9+ | 전체 로직 구현 |
+| **Processing** | **Apache Spark** | 대용량 분산 처리 & ETL |
+| **Storage** | **MinIO (S3)** | Data Lake (Bronze/Silver/Gold) |
+| **Format** | Parquet, JSON | 데이터 저장 포맷 |
+| **DevOps** | Docker | 인프라 오케스트레이션 |
 
 ## 실행 방법 (How to Run)
 ```bash
 # 1. 인프라 실행
 docker-compose up -d
 
-# 2. 데이터 생성 (Data Generator)
-# Jupyter Lab(http://localhost:8888)에 접속하여 'data_generator.ipynb' 실행
-# -> MinIO 'bronze' 버킷에 가짜 로그 데이터가 적재됨.
+# 2. 데이터 생성 (Bronze 적재)
+# Jupyter Lab 접속 -> 'data_generator.ipynb' 실행
+
+# 3. 데이터 정제 (Silver 변환)
+# Jupyter Lab 접속 -> 'bronze_to_silver.ipynb' 실행
+# -> MinIO 'silver' 버킷에 Parquet 파일 생성 확인
 
 ```
 
 ---
 
 *Created by [Kim Kyunghun]*
+

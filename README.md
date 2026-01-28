@@ -13,20 +13,19 @@ Raw Data(Bronze)를 정제(Silver)하고, 비즈니스 지표로 가공(Gold)하
 * **Day 1: 데이터 센터 구축 (Infra Setup)**
   * Docker Compose를 활용한 Spark Cluster & MinIO & Jupyter 환경 구축
 * **Day 2: 데이터 수집 (Ingestion - Bronze)**
-  * `Faker`를 활용한 가상 로그 생성기 구현 및 MinIO 적재 (JSON)
+  * `Faker` 가상 로그 생성 및 MinIO 적재 (JSON)
 * **Day 3: 데이터 정제 (Transform - Silver)**
-  * **PySpark** ETL: Bronze(JSON) → Silver(Parquet) 변환 및 스키마 적용
+  * Spark ETL: Bronze(JSON) → Silver(Parquet) 변환
 * **Day 4: 데이터 분석 (Analytics - Gold)**
-  * **비즈니스 인사이트 도출:**
-    * **Daily Traffic:** 일별 방문자(DAU) 및 페이지뷰(PV) 집계
-    * **Best Sellers:** 상품별 구매 랭킹 산출
-    * **Funnel Analysis:** OS별 `조회 -> 장바구니 -> 구매` 전환율 분석 (`pivot` 활용)
-  * 분석 결과를 MinIO `gold` 버킷에 Data Mart 형태로 적재
+  * 비즈니스 지표(Traffic, Ranking, Funnel) 도출 및 Mart 적재
+* **Day 5: 성능 최적화 (Performance Tuning)**
+  * **Partitioning:** `event_type` 컬럼 기준 물리적 파티셔닝 적용 (Scan 성능 향상)
+  * **Caching:** 반복 사용되는 DataFrame에 `.cache()` 적용하여 In-Memory 처리 속도 개선
 
 ## 아키텍처 (Architecture)
-1.  **Ingestion (Bronze):** Python Generator가 생성한 Raw JSON 로그 적재
-2.  **Processing (Silver):** PySpark를 통해 데이터 타입 변환 및 Parquet 포맷으로 압축 저장
-3.  **Analytics (Gold):** 비즈니스 지표(Traffic, Ranking, Funnel) 집계 및 Data Mart 구축
+1.  **Ingestion (Bronze):** Raw JSON
+2.  **Processing (Silver):** Parquet + Partitioning
+3.  **Analytics (Gold):** Data Mart
 4.  **Storage:** MinIO (Data Lake)
 
 ## 기술 스택 (Tech Stack)
@@ -43,18 +42,15 @@ Raw Data(Bronze)를 정제(Silver)하고, 비즈니스 지표로 가공(Gold)하
 # 1. 인프라 실행
 docker-compose up -d
 
-# 2. 데이터 생성 (Bronze)
-# Jupyter Lab -> 'data_generator.ipynb' 실행
-
-# 3. 데이터 정제 (Silver)
-# Jupyter Lab -> 'bronze_to_silver.ipynb' 실행
-
-# 4. 데이터 분석 (Gold)
-# Jupyter Lab -> 'silver_to_gold.ipynb' 실행
-# -> MinIO 'gold' 버킷에 분석 결과 적재 확인
+# 2. 파이프라인 실행 (Jupyter Lab)
+# - data_generator.ipynb (생성)
+# - bronze_to_silver.ipynb (정제)
+# - silver_to_gold.ipynb (분석)
+# - optimization.ipynb (최적화 실험)
 
 ```
 
 ---
 
 *Created by [Kim Kyunghun]*
+

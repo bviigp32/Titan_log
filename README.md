@@ -21,6 +21,9 @@ Raw Data(Bronze)를 정제(Silver)하고, 비즈니스 지표로 가공(Gold)하
 * **Day 5: 성능 최적화 (Performance Tuning)**
   * **Partitioning:** `event_type` 컬럼 기준 물리적 파티셔닝 적용 (Scan 성능 향상)
   * **Caching:** 반복 사용되는 DataFrame에 `.cache()` 적용하여 In-Memory 처리 속도 개선
+* **Day 6: 파이프라인 자동화 (Automation)**
+  * Notebook 코드를 모듈화하여 `.py` 스크립트로 변환 (`src/` 폴더)
+  * `run_pipeline.sh` 쉘 스크립트로 전체 ETL 과정(Ingestion -> Processing -> Analytics) 원클릭 실행 구현
 
 ## 아키텍처 (Architecture)
 1.  **Ingestion (Bronze):** Raw JSON
@@ -47,6 +50,9 @@ docker-compose up -d
 # - bronze_to_silver.ipynb (정제)
 # - silver_to_gold.ipynb (분석)
 # - optimization.ipynb (최적화 실험)
+
+# 전체 파이프라인 자동 실행
+./run_pipeline.sh
 
 ```
 
